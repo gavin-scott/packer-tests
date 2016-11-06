@@ -1,0 +1,47 @@
+{
+    "builders":
+    [
+	{
+	    "type": "qemu",
+	    "iso_url": "http://mirrors.securehost.com/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso",
+	    "iso_checksum": "88c0437f0a14c6e2c94426df9d43cd67",
+	    "iso_checksum_type": "md5",
+	    "output_directory": "output_centos7_tdhtest",
+	    "shutdown_command": "shutdown -P now",
+	    "disk_size": 5000,
+	    "format": "qcow2",
+	    "headless": false,
+	    "accelerator": "kvm",
+	    "http_directory": "httpdir",
+	    "http_port_min": 10082,
+	    "http_port_max": 10089,
+	    "ssh_host_port_min": 2222,
+	    "ssh_host_port_max": 2229,
+	    "ssh_username": "root",
+	    "ssh_password": "s0m3password",
+	    "ssh_port": 22,
+	    "ssh_wait_timeout": "5m",
+	    "vm_name": "tdhtest.img",
+	    "net_device": "virtio-net",
+	    "disk_interface": "virtio",
+	    "boot_wait": "5s",
+	    "boot_command":
+	    [
+		"<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"
+	    ]
+	}
+    ],
+    "provisioners": [{
+	"type": "shell",
+	"inline": [
+	    "sleep 30",
+	    "rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm",
+	    "yum install -y puppet-agent"
+	]
+    }, {
+	"type": "puppet-masterless",
+	"manifest_file": "site.pp",
+	"module_paths": ["modules"],
+	"prevent_sudo": true
+    }]
+}
